@@ -2,6 +2,7 @@
 #include <assert.h>  /* assert() */
 #include <stdlib.h>  /* NULL, strtod() */
 #include <math.h>
+#include <errno.h>
 
 #define EXPECT(c, ch)       do { assert(*c->json == (ch)); c->json++; } while(0)
 #define ISDIGIT(ch)  ((ch) >= '0' && (ch) <= '9')
@@ -82,8 +83,9 @@ static int lept_parse_number(lept_context* c, lept_value* v) {
   if (c->json == end)
     return LEPT_PARSE_INVALID_VALUE;
 
+  errno = 0;
   v->n = strtod(c->json, NULL);
-  if (v->n == HUGE_VAL || v->n == -HUGE_VAL)
+  if (errno == ERANGE && (v->n == HUGE_VAL || v->n == -HUGE_VAL))
     return LEPT_PARSE_NUMBER_TOO_BIG;
 
   c->json = end;
