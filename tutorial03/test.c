@@ -52,6 +52,36 @@ static void test_parse_false() {
     lept_free(&v);
 }
 
+static void test_get_boolean() {
+  lept_value v;
+  v.type = LEPT_TRUE;
+  EXPECT_EQ_INT(1, lept_get_boolean(&v));
+  v.type = LEPT_FALSE;
+  EXPECT_EQ_INT(0, lept_get_boolean(&v));
+}
+
+static void test_set_boolean() {
+  lept_value v;
+  lept_set_boolean(&v, 1);
+  EXPECT_EQ_INT(LEPT_TRUE, v.type);
+  lept_set_boolean(&v, 0);
+  EXPECT_EQ_INT(LEPT_FALSE, v.type);
+}
+
+static void test_get_number() {
+  lept_value v;
+  v.type = LEPT_NUMBER;
+  v.u.n = 1.0;
+  EXPECT_EQ_DOUBLE(1.0, lept_get_number(&v));
+}
+
+static void test_set_number() {
+  lept_value v;
+  v.type = LEPT_NUMBER;
+  lept_set_number(&v, 1.0);
+  EXPECT_EQ_DOUBLE(1.0, v.u.n);
+}
+
 #define TEST_NUMBER(expect, json)\
     do {\
         lept_value v;\
@@ -107,10 +137,8 @@ static void test_parse_number() {
 static void test_parse_string() {
     TEST_STRING("", "\"\"");
     TEST_STRING("Hello", "\"Hello\"");
-#if 0
     TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
     TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
-#endif
 }
 
 #define TEST_ERROR(error, json)\
@@ -163,12 +191,10 @@ static void test_parse_missing_quotation_mark() {
 }
 
 static void test_parse_invalid_string_escape() {
-#if 0
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\v\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\'\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\0\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\x12\"");
-#endif
 }
 
 static void test_parse_invalid_string_char() {
@@ -219,6 +245,11 @@ static void test_parse() {
     test_parse_missing_quotation_mark();
     test_parse_invalid_string_escape();
     test_parse_invalid_string_char();
+
+    test_get_boolean();
+    test_set_boolean();
+    test_get_number();
+    test_set_number();
 
     test_access_null();
     test_access_boolean();
